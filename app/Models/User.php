@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'address',
+        'ID_Pemilik',   // <- tambahkan
+        'ID_Pegawai',   // <- tambahkan
     ];
 
     /**
