@@ -1,49 +1,53 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers;
 
-use App\Services\Interface\ProductServiceInterface;
-use App\Services\Interface\CustomerServiceInterface;
-use App\Services\Interface\SalesServiceInterface;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use App\Models\Pelanggan;
 
-final class DashboardController extends Controller
+class DashboardController extends Controller
 {
-    public function __construct(
-        private readonly ProductServiceInterface $productService,
-        private readonly CustomerServiceInterface $customerService,
-        private readonly SalesServiceInterface $salesService
-    ) {}
-
-    public function index(Request $request): View
+    public function index()
     {
-        $totalProducts = $this->productService->getAllProducts()->count();
-        $totalCustomers = $this->customerService->getAllCustomers()->count();
-        $todayRevenue = $this->salesService->getDailySalesTotal();
+        // Total Pelanggan
+        $totalCustomers = DB::table('pelanggan')->count();
 
-        // Sales data for the current month
-        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
-        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
-        $salesReport = $this->salesService->getSalesReport($startOfMonth, $endOfMonth);
+        // Total Reward
+        $totalRewards = DB::table('reward')->count();
 
-        // Prepare chart data (dates and totals)
-        $chartLabels = [];
-        $chartData = [];
-        foreach ($salesReport['daily_breakdown'] as $date => $data) {
-            $chartLabels[] = $date;
-            $chartData[] = $data['total'];
-        }
+        // Top 3 pelanggan dengan poin tertinggi
+        $topPelanggan = DB::table('pelanggan')
+            ->select(
+                'pelanggan.ID_Pelanggan',
+                'pelanggan.Nama_Pelanggan',
+                DB::raw('SUM("poin_loyalitas"."Jumlah_Poin") as total_poin')
+            )
+            ->join('poin_loyalitas', 'pelanggan.ID_Pelanggan', '=', 'poin_loyalitas.ID_Pelanggan')
+            ->groupBy('pelanggan.ID_Pelanggan', 'pelanggan.Nama_Pelanggan')
+            ->orderByDesc('total_poin')
+            ->limit(3)
+            ->get();
 
-        return view('pages.dashboard', [
-            'totalProducts' => $totalProducts,
-            'totalCustomers' => $totalCustomers,
-            'todayRevenue' => $todayRevenue,
-            'chartLabels' => $chartLabels,
-            'chartData' => $chartData,
-        ]);
+        // Top 3 reward paling banyak ditukar
+        $topRewards = DB::table('reward')
+            ->select(
+                'reward.ID_Reward',
+                'reward.Nama_Reward',
+                DB::raw('COUNT("penukaran_poin"."ID_Reward") as total_terpakai')
+            )
+            ->join('penukaran_poin', 'reward.ID_Reward', '=', 'penukaran_poin.ID_Reward')
+            ->groupBy('reward.ID_Reward', 'reward.Nama_Reward')
+            ->orderByDesc('total_terpakai')
+            ->limit(3)
+            ->get();
+
+        // Kembalikan view yang benar
+        return view('pages.dashboard', compact(
+            'totalCustomers',
+            'totalRewards',
+            'topPelanggan',
+            'topRewards'
+        ));
     }
 }

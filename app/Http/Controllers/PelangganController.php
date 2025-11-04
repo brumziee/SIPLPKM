@@ -54,7 +54,7 @@ final class PelangganController extends Controller
         $pelanggan = $this->pelangganService->getPelangganById((int)$id);
         $riwayatPenukaran = $this->pelangganService->getRiwayatPenukaran((int)$id);
         $riwayatTransaksi = $this->pelangganService->getRiwayatTransaksi((int)$id);
-        
+
         return view('pages.pelanggan.show', compact('pelanggan', 'riwayatPenukaran', 'riwayatTransaksi'));
     }
 
@@ -68,7 +68,7 @@ final class PelangganController extends Controller
     {
         DB::beginTransaction();
         try {
-            $data = $request->validated(); // harus include 'Jumlah_Poin'
+            $data = $request->validated();
             $this->pelangganService->updatePelanggan((int)$id, $data);
 
             DB::commit();
@@ -91,14 +91,20 @@ final class PelangganController extends Controller
         }
     }
 
+    /**
+     * Tampilkan halaman form tukar poin (per pelanggan)
+     */
     public function tukarPoinForm(string $id)
     {
         $pelanggan = $this->pelangganService->getPelangganById((int)$id);
         $rewards = $this->pelangganService->getAvailableRewards((int)$id);
-        
+
         return view('pages.pelanggan.tukar-poin', compact('pelanggan', 'rewards'));
     }
 
+    /**
+     * Proses penukaran poin pelanggan
+     */
     public function tukarPoin(Request $request, string $id)
     {
         $request->validate([
@@ -122,6 +128,9 @@ final class PelangganController extends Controller
         }
     }
 
+    /**
+     * Tambah poin pelanggan secara manual
+     */
     public function tambahPoin(Request $request, string $id)
     {
         $request->validate([
@@ -139,5 +148,16 @@ final class PelangganController extends Controller
             DB::rollBack();
             return redirect()->back()->withErrors($e->getMessage());
         }
+    }
+
+    /**
+     * Tampilkan halaman form tukar poin GLOBAL
+     */
+    public function tukarPoinFormGlobal()
+    {
+        $pelanggans = $this->pelangganService->getAllPelanggansWithPoin();
+        $rewards = $this->pelangganService->getAllRewards(); // semua reward tersedia
+
+        return view('pages.pelanggan.tukar-poin-global', compact('pelanggans', 'rewards'));
     }
 }

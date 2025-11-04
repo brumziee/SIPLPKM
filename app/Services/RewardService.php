@@ -20,6 +20,17 @@ final class RewardService
     }
 
     /**
+     * Top reward paling banyak ditukar
+     */
+    public function getTopRewardMostRedeemed(int $limit = 3): Collection
+    {
+        return Reward::withCount('penukaranPoin')
+                     ->orderByDesc('penukaran_poin_count')
+                     ->limit($limit)
+                     ->get();
+    }
+
+    /**
      * Get all pemiliks
      */
     public function getAllPemiliks(): Collection

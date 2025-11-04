@@ -27,6 +27,7 @@ use App\Http\Controllers\PenukaranPoinController;
 
 use Illuminate\Support\Facades\Route;
 
+// Route utama
 Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('auth.login');
 });
@@ -36,12 +37,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Middleware auth
 Route::middleware('auth')->group(function () {
 
-    // Profile
+    // ===== Profile =====
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Notifications
+    // ===== Notifications =====
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::post('/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
         Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
@@ -49,29 +50,38 @@ Route::middleware('auth')->group(function () {
     });
 
     // ===== Sistem Loyalitas =====
-    
     // Pelanggan routes
     Route::middleware('permission:pelanggan.view')->prefix('pelanggan')->group(function () {
         Route::get('/', [PelangganController::class, 'index'])->name('pelanggan.index');
-        Route::get('/create', [PelangganController::class, 'create'])->middleware('permission:pelanggan.create')->name('pelanggan.create');
-        Route::post('/', [PelangganController::class, 'store'])->middleware('permission:pelanggan.store')->name('pelanggan.store');
+        Route::get('/create', [PelangganController::class, 'create'])
+            ->middleware('permission:pelanggan.create')
+            ->name('pelanggan.create');
+        Route::post('/', [PelangganController::class, 'store'])
+            ->middleware('permission:pelanggan.store')
+            ->name('pelanggan.store');
         Route::get('/{id}', [PelangganController::class, 'show'])->name('pelanggan.show');
-        Route::get('/{id}/edit', [PelangganController::class, 'edit'])->middleware('permission:pelanggan.edit')->name('pelanggan.edit');
-        Route::put('/{id}', [PelangganController::class, 'update'])->middleware('permission:pelanggan.update')->name('pelanggan.update');
-        Route::delete('/{id}', [PelangganController::class, 'destroy'])->middleware('permission:pelanggan.delete')->name('pelanggan.destroy');
+        Route::get('/{id}/edit', [PelangganController::class, 'edit'])
+            ->middleware('permission:pelanggan.edit')
+            ->name('pelanggan.edit');
+        Route::put('/{id}', [PelangganController::class, 'update'])
+            ->middleware('permission:pelanggan.update')
+            ->name('pelanggan.update');
+        Route::delete('/{id}', [PelangganController::class, 'destroy'])
+            ->middleware('permission:pelanggan.delete')
+            ->name('pelanggan.destroy');
 
-        // Form penukaran poin
-        Route::get('/pelanggan/tukar-poin', [PelangganController::class, 'tukarPoinFormGlobal'])
+        // Form penukaran poin global
+        Route::get('/tukar-poin', [PelangganController::class, 'tukarPoinFormGlobal'])
             ->middleware('permission:penukaran.view')
             ->name('pelanggan.tukar-poin');
 
-        // Tambah Poin Manual
+        // Tambah poin manual
         Route::post('/{id}/tambah-poin', [PelangganController::class, 'tambahPoin'])
             ->middleware('permission:poin.add')
             ->name('pelanggan.tambah-poin');
     });
 
-    // Reward routes
+    // ===== Reward routes =====
     Route::prefix('reward')->group(function () {
         Route::get('/', [RewardController::class, 'index'])->name('reward.index');
         Route::get('/create', [RewardController::class, 'create'])->name('reward.create');
@@ -82,47 +92,59 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [RewardController::class, 'destroy'])->name('reward.destroy');
     });
 
-    // Penukaran Poin routes
-    Route::middleware(['auth', 'permission:penukaran.view'])->prefix('penukaran-poin')->group(function () {
-        // Index global
-        Route::get('/', [PenukaranPoinController::class, 'index'])->name('penukaran.index');
-
-        // Create global
-        Route::get('/create', [PenukaranPoinController::class, 'create'])->middleware('permission:penukaran.create')->name('penukaran.create');
-        Route::post('/', [PenukaranPoinController::class, 'store'])->middleware('permission:penukaran.store')->name('penukaran.store');
-
-        // Show & delete
-        Route::get('/{id}', [PenukaranPoinController::class, 'show'])->name('penukaran.show');
-        Route::delete('/{id}', [PenukaranPoinController::class, 'destroy'])->middleware('permission:penukaran.delete')->name('penukaran.destroy');
+    // ===== Penukaran Poin routes =====
+    Route::prefix('penukaran-poin')->middleware(['auth'])->group(function () {
+        Route::get('/', [PenukaranPoinController::class, 'index'])->name('penukaran-poin.index');
+        Route::get('/create', [PenukaranPoinController::class, 'create'])->name('penukaran-poin.create')->middleware('permission:penukaran-poin.create');
+        Route::post('/store', [PenukaranPoinController::class, 'store'])->name('penukaran-poin.store')->middleware('permission:penukaran-poin.create');
+        Route::get('/{id}/edit', [PenukaranPoinController::class, 'edit'])->name('penukaran-poin.edit')->middleware('permission:penukaran-poin.update');
+        Route::put('/{id}', [PenukaranPoinController::class, 'update'])->name('penukaran-poin.update')->middleware('permission:penukaran-poin.update');
+        Route::delete('/{id}', [PenukaranPoinController::class, 'destroy'])->name('penukaran-poin.destroy')->middleware('permission:penukaran-poin.delete');
     });
 
-    // ===== Routes Lain (Products, Stock, Sales, Categories, Suppliers, Units, Users, Roles) =====
-    
-    // Categories
+    // ===== Categories =====
     Route::middleware('permission:category.view')->group(function () {
         Route::get('/kategori', [CategoryController::class, 'index'])->name('category.index');
-        Route::post('/kategori', [CategoryController::class, 'store'])->middleware('permission:category.store')->name('category.store');
-        Route::put('/kategori/{id}', [CategoryController::class, 'update'])->middleware('permission:category.update')->name('category.update');
-        Route::delete('/kategori/{id}', [CategoryController::class, 'destroy'])->middleware('permission:category.delete')->name('category.destroy');
+        Route::post('/kategori', [CategoryController::class, 'store'])
+            ->middleware('permission:category.store')
+            ->name('category.store');
+        Route::put('/kategori/{id}', [CategoryController::class, 'update'])
+            ->middleware('permission:category.update')
+            ->name('category.update');
+        Route::delete('/kategori/{id}', [CategoryController::class, 'destroy'])
+            ->middleware('permission:category.delete')
+            ->name('category.destroy');
     });
 
-    // Suppliers
+    // ===== Suppliers =====
     Route::middleware('permission:supplier.view')->group(function () {
         Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
-        Route::post('/supplier', [SupplierController::class, 'store'])->middleware('permission:supplier.store')->name('supplier.store');
-        Route::put('/supplier/{id}', [SupplierController::class, 'update'])->middleware('permission:supplier.update')->name('supplier.update');
-        Route::delete('/supplier/{id}', [SupplierController::class, 'destroy'])->middleware('permission:supplier.delete')->name('supplier.destroy');
+        Route::post('/supplier', [SupplierController::class, 'store'])
+            ->middleware('permission:supplier.store')
+            ->name('supplier.store');
+        Route::put('/supplier/{id}', [SupplierController::class, 'update'])
+            ->middleware('permission:supplier.update')
+            ->name('supplier.update');
+        Route::delete('/supplier/{id}', [SupplierController::class, 'destroy'])
+            ->middleware('permission:supplier.delete')
+            ->name('supplier.destroy');
     });
 
-    // Units
+    // ===== Units =====
     Route::middleware('permission:unit.view')->group(function () {
         Route::get('/satuan', [UnitController::class, 'index'])->name('unit.index');
-        Route::post('/satuan', [UnitController::class, 'store'])->middleware('permission:unit.store')->name('unit.store');
-        Route::put('/satuan/{id}', [UnitController::class, 'update'])->middleware('permission:unit.update')->name('unit.update');
-        Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])->middleware('permission:unit.delete')->name('unit.destroy');
+        Route::post('/satuan', [UnitController::class, 'store'])
+            ->middleware('permission:unit.store')
+            ->name('unit.store');
+        Route::put('/satuan/{id}', [UnitController::class, 'update'])
+            ->middleware('permission:unit.update')
+            ->name('unit.update');
+        Route::delete('/satuan/{id}', [UnitController::class, 'destroy'])
+            ->middleware('permission:unit.delete')
+            ->name('unit.destroy');
     });
 
-    // Users
+    // ===== Users =====
     Route::prefix('user')->group(function () {
         Route::middleware('permission:user.view')->get('/', [UserController::class, 'index'])->name('user.index');
         Route::middleware('permission:user.store')->post('/', [UserController::class, 'store'])->name('user.store');
@@ -130,25 +152,35 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission:user.delete')->delete('/{user}', [UserController::class, 'destroy'])->name('user.destroy');
     });
 
-    // Roles
+    // ===== Roles =====
     Route::prefix('role')->group(function () {
         Route::middleware('permission:role.view')->get('/', [RoleController::class, 'index'])->name('role.index');
         Route::middleware('permission:role.update')->get('/{role}/edit', [RoleController::class, 'edit'])->name('role.edit');
         Route::middleware('permission:role.update')->put('/{role}', [RoleController::class, 'update'])->name('role.update');
     });
 
-    // Products
+    // ===== Products =====
     Route::middleware('permission:product.view')->group(function () {
         Route::get('/produk', [ProductController::class, 'index'])->name('product.index');
-        Route::get('/produk/create', [ProductController::class, 'create'])->middleware('permission:product.create')->name('product.create');
-        Route::post('/produk', [ProductController::class, 'store'])->middleware('permission:product.store')->name('product.store');
+        Route::get('/produk/create', [ProductController::class, 'create'])
+            ->middleware('permission:product.create')
+            ->name('product.create');
+        Route::post('/produk', [ProductController::class, 'store'])
+            ->middleware('permission:product.store')
+            ->name('product.store');
         Route::get('/produk/{id}', [ProductController::class, 'show'])->name('product.show');
-        Route::get('/produk/{id}/edit', [ProductController::class, 'edit'])->middleware('permission:product.edit')->name('product.edit');
-        Route::put('/produk/{id}', [ProductController::class, 'update'])->middleware('permission:product.update')->name('product.update');
-        Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->middleware('permission:product.delete')->name('product.destroy');
+        Route::get('/produk/{id}/edit', [ProductController::class, 'edit'])
+            ->middleware('permission:product.edit')
+            ->name('product.edit');
+        Route::put('/produk/{id}', [ProductController::class, 'update'])
+            ->middleware('permission:product.update')
+            ->name('product.update');
+        Route::delete('/produk/{id}', [ProductController::class, 'destroy'])
+            ->middleware('permission:product.delete')
+            ->name('product.destroy');
     });
 
-    // Stock Management
+    // ===== Stock Management =====
     Route::middleware('permission:stock.view')->prefix('stok')->group(function () {
         Route::get('/', [StockController::class, 'index'])->name('stock.index');
         Route::get('/riwayat', [StockController::class, 'movements'])->name('stock.movements');
@@ -160,7 +192,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/penyesuaian', [StockController::class, 'adjustment'])->middleware('permission:stock.adjustment')->name('stock.adjustment');
     });
 
-    // Sales
+    // ===== Sales =====
     Route::middleware('auth')->prefix('penjualan')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('sales.pos');
         Route::get('/riwayat', [SalesController::class, 'history'])->name('sales.history');
@@ -182,7 +214,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ringkasan-hari-ini', [SalesController::class, 'todaySummary'])->name('sales.today');
     });
 
-    // Purchases
+    // ===== Purchases =====
     Route::middleware('permission:purchase.view')->prefix('pembelian')->group(function () {
         Route::get('/', [PurchaseController::class, 'index'])->name('purchases.index');
         Route::get('/create', [PurchaseController::class, 'create'])->middleware('permission:purchase.create')->name('purchases.create');
@@ -191,7 +223,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [PurchaseController::class, 'destroy'])->middleware('permission:purchase.delete')->name('purchases.destroy');
     });
 
-    // Settings
+    // ===== Settings =====
     Route::prefix('pengaturan')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('settings.index');
         Route::put('/', [SettingController::class, 'update'])->name('settings.update');

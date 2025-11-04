@@ -1,164 +1,120 @@
-@extends('layouts.app')
+@extends('layouts.master')
+
+@section('title', 'Kelola Penukaran Poin')
+
+@section('action')
+@can('penukaran-poin.create')
+<a href="{{ route('penukaran-poin.create') }}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Tukar Poin
+</a>
+@endcan
+@endsection
 
 @section('content')
-<div class="container-xl">
-    <!-- Page header -->
-    <div class="page-header d-print-none">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    Riwayat Penukaran Poin
-                </h2>
-                <div class="text-muted mt-1">Menampilkan {{ $penukarans->total() }} riwayat penukaran</div>
-            </div>
-            <div class="col-auto ms-auto d-print-none">
-                <a href="{{ route('customer.index') }}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /></svg>
-                    Tukar Poin
-                </a>
-            </div>
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Daftar Penukaran Poin</h3>
     </div>
-</div>
-
-<div class="page-body">
-    <div class="container-xl">
-        <!-- Search Form (SKPL-SIPLPKM-004-02) -->
-        <div class="card mb-3">
-            <div class="card-body">
-                <form action="{{ route('sales.history') }}" method="GET">
-                    <div class="row g-2">
-                        <div class="col">
-                            <input type="text" name="search" class="form-control" 
-                                placeholder="Cari berdasarkan ID Transaksi, Nama Pelanggan, atau Nama Reward..." 
-                                value="{{ $search ?? '' }}">
-                        </div>
-                        <div class="col-auto">
-                            <button type="submit" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                                Cari
-                            </button>
-                            @if($search)
-                            <a href="{{ route('sales.history') }}" class="btn btn-secondary">Reset</a>
-                            @endif
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Daftar Riwayat Penukaran Poin</h3>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table id="penukaran-table" class="table table-striped table-vcenter">
-                        <thead>
-                            <tr>
-                                <th>ID Transaksi</th>
-                                <th>Tanggal</th>
-                                <th>Pelanggan</th>
-                                <th>Reward</th>
-                                <th>Poin Ditukar</th>
-                                <th>Pegawai</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($penukarans as $penukaran)
-                            <tr>
-                                <td>
-                                    <span class="fw-bold">{{ $penukaran->transaction_id }}</span>
-                                </td>
-                                <td>
-                                    {{ $penukaran->Tanggal_Penukaran->format('d/m/Y H:i') }}
-                                    <br>
-                                    <small class="text-muted">{{ $penukaran->Tanggal_Penukaran->diffForHumans() }}</small>
-                                </td>
-                                <td>
-                                    <div>
-                                        <strong>{{ $penukaran->pelanggan->Nama_Pelanggan ?? '-' }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ $penukaran->pelanggan->NoTelp_Pelanggan ?? '-' }}</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                        <strong>{{ $penukaran->reward->Nama_Reward ?? '-' }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ number_format($penukaran->reward->Poin_Dibutuhkan ?? 0) }} poin</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
-                                        {{ number_format($penukaran->Jumlah_Poin_Ditukar) }} Poin
-                                    </span>
-                                </td>
-                                <td>
-                                    <div>
-                                        <strong>{{ $penukaran->pegawai->Nama_Pegawai ?? '-' }}</strong>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('sales.show', $penukaran->ID_Penukaran) }}" class="btn btn-sm btn-info" title="Detail">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="2" /><path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" /></svg>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <div class="text-muted">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="9" y1="10" x2="9.01" y2="10" /><line x1="15" y1="10" x2="15.01" y2="10" /><path d="M9.5 15a3.5 3.5 0 0 0 5 0" /></svg>
-                                        <p>Belum ada riwayat penukaran poin</p>
-                                        <a href="{{ route('customer.index') }}" class="btn btn-primary">Mulai Tukar Poin</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                @if($penukarans->hasPages())
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $penukarans->links() }}
-                </div>
-                @endif
-            </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="penukaran-poin-table" class="table table-vcenter card-table table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Pelanggan</th>
+                        <th>Reward</th>
+                        <th>Jumlah Poin</th>
+                        <th>Tanggal Penukaran</th>
+                        <th class="w-1">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($penukarans as $index => $penukaran)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            <strong>{{ $penukaran['Nama_Pelanggan'] ?? 'Tidak Diketahui' }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ $penukaran['Nama_Reward'] ?? 'Reward Dihapus' }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning">
+                                <i class="fas fa-star"></i> {{ number_format($penukaran['Poin_Ditukar']) }} Poin
+                            </span>
+                        </td>
+                        <td>{{ \Carbon\Carbon::parse($penukaran['Tanggal_Penukaran'])->format('d M Y, H:i') }}</td>
+                        <td>
+                            @can('penukaran-poin.delete')
+                                <form action="{{ route('penukaran-poin.destroy', $penukaran['ID_Penukaran']) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus penukaran ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M4 7l16 0"/>
+                                            <path d="M10 11l0 6"/>
+                                            <path d="M14 11l0 6"/>
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12"/>
+                                            <path d="M9 7v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
+                                        </svg> Hapus
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-muted">Tidak ada aksi</span>
+                            @endcan
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="empty">
+                                <div class="empty-icon">
+                                    <i class="fas fa-gift fa-3x text-muted"></i>
+                                </div>
+                                <p class="empty-title">Belum ada penukaran poin</p>
+                                <p class="empty-subtitle text-muted">
+                                    Data penukaran poin akan muncul setelah pelanggan menukarkan reward.
+                                </p>
+                                @can('penukaran-poin.create')
+                                <div class="empty-action">
+                                    <a href="{{ route('penukaran-poin.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Tukar Poin Sekarang
+                                    </a>
+                                </div>
+                                @endcan
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 @endsection
 
-@push('scripts')
+@push('addon-script')
 <script>
 $(document).ready(function() {
-    @if($penukarans->count() > 0)
-    $('#penukaran-table').DataTable({
-        "paging": false,
-        "info": false,
-        "searching": false,
-        "ordering": true,
-        "order": [[1, "desc"]],
-        "columnDefs": [
-            { "orderable": false, "targets": [6] }
-        ],
+    @if(count($penukarans) > 0)
+    $('#penukaran-poin-table').DataTable({
+        "responsive": true,
+        "autoWidth": false,
         "language": {
             "search": "Cari:",
+            "lengthMenu": "Tampilkan _MENU_ data",
+            "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+            "infoEmpty": "Tidak ada data",
+            "infoFiltered": "(disaring dari _MAX_ total data)",
             "zeroRecords": "Tidak ada data yang cocok",
-            "emptyTable": "Tidak ada data tersedia dalam tabel"
+            "emptyTable": "Tidak ada data",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Selanjutnya",
+                "previous": "Sebelumnya"
+            }
         }
     });
     @endif

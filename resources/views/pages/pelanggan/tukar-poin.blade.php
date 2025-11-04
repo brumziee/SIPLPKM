@@ -15,13 +15,8 @@
             </div>
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
-                    <a href="{{ route('pelanggan.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                            <line x1="5" y1="12" x2="9" y2="16" />
-                            <line x1="5" y1="12" x2="9" y2="8" />
-                        </svg>
+                    <a href="{{ route('customer.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="5" y1="12" x2="19" y2="12" /><line x1="5" y1="12" x2="9" y2="16" /><line x1="5" y1="12" x2="9" y2="8" /></svg>
                         Kembali
                     </a>
                 </div>
@@ -76,7 +71,7 @@
                     </div>
                     <div class="card-body">
                         @if($rewards->count() > 0)
-                        <form action="{{ route('pelanggan.tukar-poin.store', $pelanggan->ID_Pelanggan) }}" method="POST" id="tukarPoinForm">
+                        <form action="{{ route('customer.tukar-poin.process', $pelanggan->ID_Pelanggan) }}" method="POST" id="tukarPoinForm">
                             @csrf
                             <div class="row row-cards">
                                 @foreach($rewards as $reward)
@@ -90,10 +85,7 @@
                                             <div class="form-selectgroup-label-content">
                                                 <div class="fw-bold">{{ $reward->Nama_Reward }}</div>
                                                 <div class="text-muted">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                        <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
-                                                    </svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
                                                     {{ $reward->Poin_Dibutuhkan }} Poin
                                                 </div>
                                                 <small class="text-muted">
@@ -109,12 +101,7 @@
                             <hr>
 
                             <div class="alert alert-info">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <circle cx="12" cy="12" r="9" />
-                                    <line x1="12" y1="8" x2="12.01" y2="8" />
-                                    <polyline points="11 12 12 12 12 16 13 16" />
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12.01" y2="8" /><polyline points="11 12 12 12 12 16 13 16" /></svg>
                                 <div>
                                     <h4 class="alert-title">Perhatian</h4>
                                     <div class="text-muted">
@@ -125,32 +112,23 @@
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success" onclick="return confirm('Yakin ingin menukarkan poin ini?')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M5 12l5 5l10 -10" />
-                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
                                     Tukar Poin
                                 </button>
-                                <a href="{{ route('pelanggan.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">Batal</a>
+                                <a href="{{ route('customer.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>
                         @else
                         <div class="empty">
                             <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <circle cx="12" cy="12" r="9" />
-                                    <line x1="9" y1="10" x2="9.01" y2="10" />
-                                    <line x1="15" y1="10" x2="15.01" y2="10" />
-                                    <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><line x1="9" y1="10" x2="9.01" y2="10" /><line x1="15" y1="10" x2="15.01" y2="10" /><path d="M9.5 15a3.5 3.5 0 0 0 5 0" /></svg>
                             </div>
                             <p class="empty-title">Tidak ada reward tersedia</p>
                             <p class="empty-subtitle text-muted">
                                 Poin pelanggan tidak mencukupi untuk menukar reward yang tersedia, atau belum ada reward yang terdaftar.
                             </p>
                             <div class="empty-action">
-                                <a href="{{ route('pelanggan.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">
+                                <a href="{{ route('customer.show', $pelanggan->ID_Pelanggan) }}" class="btn btn-secondary">
                                     Kembali
                                 </a>
                             </div>

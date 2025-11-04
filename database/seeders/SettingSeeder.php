@@ -15,7 +15,7 @@ final class SettingSeeder extends Seeder
     public function run(): void
     {
         Setting::create([
-            'website_name' => 'Laravel POS',
+            'website_name' => 'SIPLPKM',
             'address' => 'Jl. Contoh Alamat No. 123, Jakarta',
             'email' => 'admin@laravelpos.com',
             'phone' => '081234567890',

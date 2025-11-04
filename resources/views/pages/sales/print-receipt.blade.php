@@ -145,7 +145,7 @@
     <div class="receipt">
         <!-- Header -->
         <div class="header">
-            <h1>{{ config('app.name', 'LARAVEL POS') }}</h1>
+            <h1>{{ config('app.name', 'SIPLPKM') }}</h1>
             @if(isset($websiteSetting))
             @if($websiteSetting->address)
             <p>{{ $websiteSetting->address }}</p>

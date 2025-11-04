@@ -10,9 +10,10 @@ class PoinLoyalitas extends Model
     use HasFactory;
 
     protected $table = 'poin_loyalitas';
-    
     protected $primaryKey = 'ID_Poin';
-    
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $fillable = [
         'ID_Pelanggan',
         'Jumlah_Poin',
@@ -22,17 +23,11 @@ class PoinLoyalitas extends Model
         'Jumlah_Poin' => 'integer',
     ];
 
-    /**
-     * Relasi ke Pelanggan (One to One)
-     */
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class, 'ID_Pelanggan', 'ID_Pelanggan');
     }
 
-    /**
-     * Relasi ke Penukaran Poin (One to Many)
-     */
     public function penukaranPoin()
     {
         return $this->hasMany(PenukaranPoin::class, 'ID_Poin', 'ID_Poin');

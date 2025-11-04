@@ -34,6 +34,6 @@ class RoleController extends Controller
     {
         $role = $this->roleService->getRoleById($id);
         $this->roleService->updatePermissions($role, $request->permissions ?? []);
-        return redirect()->route('roles.index')->with('success', 'Permissions updated.');
+        return redirect()->route('role.index')->with('success', 'Permissions updated.');
     }
 }

@@ -3,70 +3,56 @@
 @section('title', 'Tukar Poin')
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Tukar Poin</h3>
-    </div>
-    <div class="card-body">
-        <form action="{{ route('penukaran.store') }}" method="POST">
-            @csrf
-            <div class="mb-3">
-                <label>Pilih Pelanggan</label>
-                <select name="pelanggan_id" class="form-control">
-                    @foreach($pelanggans as $pelanggan)
-                    <option value="{{ $pelanggan->ID_Pelanggan }}" data-points="{{ $pelanggan->poinLoyalitas->Jumlah_Poin ?? 0 }}">
-                        {{ $pelanggan->Nama_Pelanggan }} ({{ $pelanggan->poinLoyalitas->Jumlah_Poin ?? 0 }} Poin)
-                    </option>
-                    @endforeach
-                </select>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Form Penukaran Poin</h3>
             </div>
+            <form action="{{ route('penukaran-poin.store') }}" method="POST">
+                @csrf
+                <div class="card-body">
 
-            <div class="mb-3">
-                <label>Pilih Reward</label>
-                <select name="reward_id" class="form-control" id="reward-select">
-                    @foreach($rewards as $reward)
-                    <option value="{{ $reward->ID_Reward }}" data-required="{{ $reward->Poin_Dibutuhkan }}">
-                        {{ $reward->Nama_Reward }} ({{ $reward->Poin_Dibutuhkan }} Poin)
-                    </option>
-                    @endforeach
-                </select>
-            </div>
+                    {{-- Pilih Pelanggan --}}
+                    <div class="mb-3">
+                        <label class="form-label required">Pelanggan</label>
+                        <select name="pelanggan_id" class="form-select @error('pelanggan_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Pelanggan --</option>
+                            @foreach($pelanggans as $pelanggan)
+                                <option value="{{ $pelanggan->ID_Pelanggan }}" {{ old('pelanggan_id') == $pelanggan->ID_Pelanggan ? 'selected' : '' }}>
+                                    {{ $pelanggan->Nama_Pelanggan }} 
+                                    ({{ $pelanggan->poinLoyalitas->Jumlah_Poin ?? 0 }} poin)
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pelanggan_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <div class="mb-3">
-                <label>Poin Saat Ini</label>
-                <input type="text" id="current-points" class="form-control" readonly>
-            </div>
+                    {{-- Pilih Reward --}}
+                    <div class="mb-3">
+                        <label class="form-label required">Reward</label>
+                        <select name="reward_id" class="form-select @error('reward_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Reward --</option>
+                            @foreach($rewards as $reward)
+                                <option value="{{ $reward->ID_Reward }}" {{ old('reward_id') == $reward->ID_Reward ? 'selected' : '' }}>
+                                    {{ $reward->Nama_Reward }} ({{ $reward->Poin_Dibutuhkan }} poin)
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('reward_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <div class="mb-3">
-                <label>Poin Diperlukan</label>
-                <input type="text" id="required-points" class="form-control" readonly>
-            </div>
-
-            <button type="submit" class="btn btn-success">Tukar Poin</button>
-        </form>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="submit" class="btn btn-primary">Tukar Poin</button>
+                    <a href="{{ route('penukaran-poin.index') }}" class="btn btn-secondary">Batal</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
-
-@push('addon-script')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const pelangganSelect = document.querySelector('select[name="pelanggan_id"]');
-    const rewardSelect = document.getElementById('reward-select');
-    const currentPoints = document.getElementById('current-points');
-    const requiredPoints = document.getElementById('required-points');
-
-    function updatePoints() {
-        const pelangganOption = pelangganSelect.options[pelangganSelect.selectedIndex];
-        const rewardOption = rewardSelect.options[rewardSelect.selectedIndex];
-
-        currentPoints.value = pelangganOption.getAttribute('data-points') || 0;
-        requiredPoints.value = rewardOption.getAttribute('data-required');
-    }
-
-    pelangganSelect.addEventListener('change', updatePoints);
-    rewardSelect.addEventListener('change', updatePoints);
-    updatePoints();
-});
-</script>
-@endpush

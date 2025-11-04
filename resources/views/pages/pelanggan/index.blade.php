@@ -9,8 +9,8 @@
 </a>
 @endcan
 
-@can('penukaran.view')
-<a href="{{ route('pelanggan.tukar-poin') }}" class="btn btn-success">
+@can('penukaran.create')
+<a href="{{ route('penukaran-poin.create') }}" class="btn btn-success">
     <i class="fas fa-exchange-alt"></i> Penukaran Poin
 </a>
 @endcan

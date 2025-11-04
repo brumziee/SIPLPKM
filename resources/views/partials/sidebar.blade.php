@@ -5,24 +5,26 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Brand -->
         <div class="navbar-brand navbar-brand-autodark">
-            <a href="{{ route('dashboard') }}" aria-label="{{ $websiteSetting?->website_name ?? 'Laravel POS' }}">
+            <a href="{{ route('dashboard') }}" aria-label="SIPLPKM">
                 @if($websiteSetting?->logo)
-                    <img src="{{ asset('storage/' . $websiteSetting->logo) }}" alt="{{ $websiteSetting->website_name }}"
+                    <img src="{{ asset('storage/' . $websiteSetting->logo) }}" alt="SIPLPKM"
                         class="navbar-brand-image" style="height: 32px; width: auto; max-width: 150px;">
                 @else
-                    {{ $websiteSetting?->website_name ?? 'Sistem Loyalitas' }}
+                    SIPLPKM
                 @endif
             </a>
         </div>
 
+        <!-- Sidebar Menu -->
         <div class="navbar-collapse collapse" id="sidebar-menu">
             <ul class="navbar-nav pt-lg-3">
                 <!-- Dashboard -->
                 <li class="nav-item {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 class="icon icon-1">
                                 <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
@@ -34,14 +36,29 @@
                     </a>
                 </li>
 
-                <!-- Penukaran Poin -->
-                <li class="nav-item dropdown {{ request()->is('pelanggan*') || request()->is('penjualan/riwayat*') ? 'active' : '' }}">
-                    <a class="nav-link dropdown-toggle" href="#navbar-sales" data-bs-toggle="dropdown"
-                        data-bs-auto-close="false" role="button" aria-expanded="false">
+                <!-- Poin Pelanggan -->
+                <li class="nav-item {{ request()->is('pelanggan*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('pelanggan.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-1">
+                                <path d="M3 3h18l-1 13H4L3 3z"></path>
+                                <path d="M7 16a1 1 0 1 1 2 0a1 1 0 0 1 -2 0"></path>
+                                <path d="M16 16a1 1 0 1 1 2 0a1 1 0 0 1 -2 0"></path>
+                            </svg>
+                        </span>
+                        <span class="nav-link-title"> Poin Pelanggan </span>
+                    </a>
+                </li>
+
+                <!-- Penukaran Poin -->
+                <li class="nav-item {{ request()->is('penukaran-poin*') || request()->is('penukaran*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('penukaran-poin.index') }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-1">
                                 <path d="M3 3h18l-1 13H4L3 3z"></path>
                                 <path d="M16 16a1 1 0 1 1 2 0a1 1 0 0 1 -2 0"></path>
                                 <path d="M7 16a1 1 0 1 1 2 0a1 1 0 0 1 -2 0"></path>
@@ -50,25 +67,15 @@
                         </span>
                         <span class="nav-link-title"> Penukaran Poin </span>
                     </a>
-                    <div class="dropdown-menu {{ request()->is('pelanggan*') || request()->is('penjualan/riwayat*') ? 'show' : '' }}">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item {{ request()->is('pelanggan*') ? 'active' : '' }}"
-                                    href="{{ route('pelanggan.index') }}"> Poin Pelanggan </a>
-                                <a class="dropdown-item {{ request()->is('penjualan/riwayat*') ? 'active' : '' }}"
-                                    href="{{ route('sales.history') }}"> Riwayat Penukaran </a>
-                            </div>
-                        </div>
-                    </div>
                 </li>
 
                 <!-- Reward -->
                 <li class="nav-item {{ request()->is('reward*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('reward.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-1">
                                 <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                                 <path d="M3 9h18"></path>
                             </svg>
@@ -82,9 +89,9 @@
                 <li class="nav-item {{ request()->is('user*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('user.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-1">
                                 <circle cx="12" cy="7" r="4"></circle>
                                 <path d="M5.5 21a7 7 0 0 1 13 0z"></path>
                             </svg>
@@ -99,8 +106,9 @@
                 <li class="nav-item {{ request()->is('role*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('role.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-1">
                                 <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"></path>
                                 <path d="M12 12l8 -4.5"></path>
                                 <path d="M12 12l0 9"></path>
