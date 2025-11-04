@@ -15,7 +15,7 @@
             <div class="card-header">
                 <h3 class="card-title">Informasi Reward</h3>
             </div>
-            <form action="{{ route('reward.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('reward.store') }}" method="POST">
                 @csrf
                 <div class="card-body">
                     <div class="mb-3">
@@ -35,15 +35,6 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="form-hint">Jumlah poin yang harus ditukarkan pelanggan untuk mendapatkan reward ini</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Gambar Reward (Opsional)</label>
-                        <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                        @error('image')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-hint">Format: JPG, PNG, GIF. Maksimal 2MB</small>
                     </div>
 
                     <!-- Info: Pembuat otomatis dari user login -->
@@ -85,7 +76,6 @@
                 <ul class="mb-0">
                     <li>Buat nama reward yang jelas dan menarik</li>
                     <li>Sesuaikan poin dengan nilai reward</li>
-                    <li>Tambahkan gambar untuk menarik perhatian</li>
                 </ul>
                 <hr>
                 <p><strong>Catatan:</strong></p>

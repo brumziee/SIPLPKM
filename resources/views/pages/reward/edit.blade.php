@@ -15,7 +15,7 @@
             <div class="card-header">
                 <h3 class="card-title">Edit Informasi Reward</h3>
             </div>
-            <form action="{{ route('reward.update', $reward->ID_Reward) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('reward.update', $reward->ID_Reward) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="card-body">
@@ -37,24 +37,6 @@
                         @enderror
                         <small class="form-hint">Jumlah poin yang harus ditukarkan pelanggan untuk mendapatkan reward ini</small>
                     </div>
-
-                    {{-- @if(isset($reward->image))
-                    <div class="mb-3">
-                        <label class="form-label">Gambar Saat Ini</label>
-                        <div>
-                            <img src="{{ asset('storage/' . $reward->image) }}" alt="{{ $reward->Nama_Reward }}" class="img-thumbnail" style="max-height: 200px;">
-                        </div>
-                    </div>
-                    @endif
-
-                    <div class="mb-3">
-                        <label class="form-label">{{ isset($reward->image) ? 'Ganti Gambar (Opsional)' : 'Gambar Reward (Opsional)' }}</label>
-                        <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                        @error('image')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="form-hint">Format: JPG, PNG, GIF. Maksimal 2MB. Kosongkan jika tidak ingin mengubah gambar.</small>
-                    </div> --}}
 
                     <!-- Info: Update otomatis akan mengubah pembuat -->
                     <div class="alert alert-warning">
@@ -110,12 +92,6 @@
                     <dt class="col-5">Terakhir Update:</dt>
                     <dd class="col-7">{{ $reward->updated_at->format('d M Y H:i') }}</dd>
                 </dl>
-                <hr>
-                <div class="d-grid">
-                    <a href="{{ route('reward.show', $reward->ID_Reward) }}" class="btn btn-info">
-                        <i class="fas fa-eye"></i> Lihat Detail
-                    </a>
-                </div>
             </div>
         </div>
     </div>
