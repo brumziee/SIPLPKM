@@ -32,7 +32,7 @@ use App\Services\Interface\CategoryServiceInterface;
 use App\Services\Interface\CustomerServiceInterface;
 use App\Services\Interface\ProductServiceInterface;
 use App\Services\Interface\RoleServiceInterface;
-use App\Services\Interface\NotificationServiceInterface;
+// use App\Services\Interface\NotificationServiceInterface;
 use App\Services\Interface\SalesServiceInterface;
 use App\Services\Interface\SettingServiceInterface;
 use App\Services\Interface\StockOpnameServiceInterface;
@@ -40,7 +40,7 @@ use App\Services\Interface\StockServiceInterface;
 use App\Services\Interface\SupplierServiceInterface;
 use App\Services\Interface\UnitServiceInterface;
 use App\Services\Interface\UserServiceInterface;
-use App\Services\NotificationService;
+// use App\Services\NotificationService;
 use App\Services\ProductService;
 use App\Services\RoleService;
 use App\Services\SalesService;
@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
             StockOpnameRepositoryInterface::class => StockOpnameRepository::class,
             StockServiceInterface::class => StockService::class,
             StockOpnameServiceInterface::class => StockOpnameService::class,
-            NotificationServiceInterface::class => NotificationService::class,
+            // NotificationServiceInterface::class => NotificationService::class,
             SalesServiceInterface::class => SalesService::class,
             SalesRepositoryInterface::class => SalesRepository::class,
             SettingServiceInterface::class => SettingService::class,
@@ -101,12 +101,12 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        // Register view composer for notifications
-        View::composer('partials.navbar', NotificationComposer::class);
+    // public function boot(): void
+    // {
+    //     // Register view composer for notifications
+    //     View::composer('partials.navbar', NotificationComposer::class);
 
-        // Register view composer for settings
-        View::composer('partials.sidebar', SettingComposer::class);
-    }
+    //     // Register view composer for settings
+    //     View::composer('partials.sidebar', SettingComposer::class);
+    // }
 }

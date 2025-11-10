@@ -1,30 +1,53 @@
 <aside class="navbar navbar-vertical navbar-expand-lg">
     <div class="container-fluid">
-        <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-            aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
 
-        <div class="navbar-brand navbar-brand-autodark">
-            <a href="{{ route('dashboard') }}" aria-label="{{ $websiteSetting?->website_name ?? 'SIPLPKM' }}">
-                @if($websiteSetting?->logo)
-                    <img src="{{ asset('storage/' . $websiteSetting->logo) }}" alt="{{ $websiteSetting->website_name ?? 'SIPLPKM' }}"
-                        class="navbar-brand-image">
-                @else
-                    SIPLPKM
-                @endif
+        <!-- BAR ATAS: toggle kiri, SIPLPKM tengah, profil kanan mobile -->
+        <div class="d-flex align-items-center w-100 mb-3 position-relative">
+            <!-- tombol toggle di kiri (hanya mobile) -->
+            <button class="navbar-toggler collapsed d-lg-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+                aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- SIPLPKM di tengah -->
+            <a href="{{ route('dashboard') }}" 
+               class="fw-bold text-2xl text-red-600 hover:text-red-800 text-decoration-none text-center w-100">
+                SIPLPKM
             </a>
+
+            <!-- PROFIL di kanan (mobile) -->
+            <div class="d-lg-none position-absolute end-0">
+                <div class="nav-item dropdown">
+                    <a href="#" class="p-0 nav-link d-flex align-items-center" data-bs-toggle="dropdown" aria-label="Open user menu">
+                        <span class="avatar avatar-sm" style="background-image: url('{{ asset('static/avatars/userprofile.png') }}')"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <div class="dropdown-item-text fw-semibold text-center">
+                            {{ auth()->user() ? auth()->user()->name : '' }}
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="#" class="dropdown-item text-danger fw-semibold"
+                               onclick="event.preventDefault(); this.closest('form').submit();">
+                                Logout
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- tetap gunakan bagian menu yg sama seperti semula -->
         <div class="navbar-collapse collapse" id="sidebar-menu">
             <ul class="navbar-nav pt-lg-3">
                 <!-- Dashboard -->
                 <li class="nav-item {{ request()->is('/') || request()->is('dashboard') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('dashboard') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-1">
                                 <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
                                 <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
                                 <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
@@ -34,7 +57,7 @@
                     </a>
                 </li>
 
-                <!-- Poin Pelanggan (separate item) -->
+                <!-- Poin Pelanggan -->
                 <li class="nav-item {{ request()->is('pelanggan*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('pelanggan.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -50,7 +73,7 @@
                     </a>
                 </li>
 
-                <!-- Penukaran Poin (separate item) -->
+                <!-- Penukaran Poin -->
                 <li class="nav-item {{ request()->is('penukaran-poin*') || request()->is('penukaran*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('penukaran-poin.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -104,12 +127,10 @@
                 <li class="nav-item {{ request()->is('role*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('role.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"></path>
-                                <path d="M12 12l8 -4.5"></path>
-                                <path d="M12 12l0 9"></path>
-                                <path d="M12 12l-8 -4.5"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-1">
+                                <path d="M12 3l8 4.5v9l-8 4.5l-8-4.5v-9l8-4.5"></path>
                             </svg>
                         </span>
                         <span class="nav-link-title"> Hak Akses </span>
