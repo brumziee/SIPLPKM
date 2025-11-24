@@ -32,7 +32,20 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('auth.login');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+// Import CSV
+Route::post('/dashboard/import-csv', [DashboardController::class, 'importCsv'])
+    ->name('dashboard.import')
+    ->middleware('auth');
+
+// LOG UPLOAD CSV
+Route::get('/csv-logs', function () {
+    $logs = \App\Models\CsvLog::orderBy('uploaded_at', 'desc')->get();
+    return view('pages.csv_logs.index', compact('logs'));
+})->name('csv-logs.index')->middleware('auth');
 
 // Middleware auth
 Route::middleware('auth')->group(function () {

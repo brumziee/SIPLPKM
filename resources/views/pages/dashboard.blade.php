@@ -4,7 +4,18 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <!-- Statistic Cards (full width) -->
+
+    <!-- Notification Sukses / Error (Persis seperti layout default berhasil) -->
+    @if(session('message'))
+        <div class="text-center mb-3">
+            <div class="alert alert-dismissible fade show" role="alert" style="background-color: {{ session('message_type') == 'success' ? '#28a745' : '#dc3545' }}; color: #fff;">
+                {{ session('message') }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    @endif
+
+    <!-- Statistic Cards -->
     <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <div class="card shadow-sm border-0 text-center h-100">
@@ -28,7 +39,6 @@
 
     <!-- Top Pelanggan & Top Reward -->
     <div class="row">
-        <!-- Top Pelanggan -->
         <div class="col-md-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
@@ -45,12 +55,11 @@
             </div>
         </div>
 
-        <!-- Top Reward -->
         <div class="col-md-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Reward Paling Banyak Ditukar</h5>
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group list-group-flush mb-3">
                         @foreach($topRewards as $reward)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ $reward->Nama_Reward }}
@@ -60,6 +69,39 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Tombol Import CSV di tengah bawah -->
+    <div class="text-center mt-4">
+        <button type="button" class="btn btn-danger px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
+            <i class="bi bi-upload"></i> Import CSV
+        </button>
+    </div>
+
+</div>
+
+<!-- Modal Import CSV -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="importModalLabel">Import Data CSV</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('dashboard.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Pilih file CSV yang ingin diunggah untuk menambah data ke sistem.</p>
+                    <input type="file" name="file" accept=".csv" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-cloud-arrow-up"></i> Upload
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

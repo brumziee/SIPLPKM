@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="form-footer">
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">Login</button>
                     </div>
                 </div>
             </form>

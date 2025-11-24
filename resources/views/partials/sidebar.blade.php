@@ -105,6 +105,26 @@
                     </a>
                 </li>
 
+                <li class="nav-item {{ request()->is('csv-logs*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('csv-logs.index') }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-1">
+                                <path d="M12 20l4 -9l-4 -3l-4 3z"></path>
+                                <path d="M12 4l0 .01"></path>
+                                <path d="M3 12l.01 0"></path>
+                                <path d="M21 12l.01 0"></path>
+                                <path d="M5.6 5.6l.01 0"></path>
+                                <path d="M18.4 5.6l.01 0"></path>
+                                <path d="M5.6 18.4l.01 0"></path>
+                                <path d="M18.4 18.4l.01 0"></path>
+                            </svg>
+                        </span>
+                        <span class="nav-link-title"> Log Upload CSV </span>
+                    </a>
+                </li>
+
                 <!-- User -->
                 @can('user.view')
                 <li class="nav-item {{ request()->is('user*') ? 'active' : '' }}">
@@ -137,6 +157,8 @@
                     </a>
                 </li>
                 @endcan
+
+                
             </ul>
         </div>
     </div>
