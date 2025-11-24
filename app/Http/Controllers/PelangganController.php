@@ -91,9 +91,6 @@ final class PelangganController extends Controller
         }
     }
 
-    /**
-     * Tampilkan halaman form tukar poin (per pelanggan)
-     */
     public function tukarPoinForm(string $id)
     {
         $pelanggan = $this->pelangganService->getPelangganById((int)$id);
@@ -102,9 +99,6 @@ final class PelangganController extends Controller
         return view('pages.pelanggan.tukar-poin', compact('pelanggan', 'rewards'));
     }
 
-    /**
-     * Proses penukaran poin pelanggan
-     */
     public function tukarPoin(Request $request, string $id)
     {
         $request->validate([
@@ -116,7 +110,7 @@ final class PelangganController extends Controller
             $result = $this->pelangganService->tukarPoin(
                 (int)$id,
                 (int)$request->reward_id,
-                auth()->id()
+                $request->user()->id   // 🔥 FIX intelephense error
             );
 
             DB::commit();
@@ -128,9 +122,6 @@ final class PelangganController extends Controller
         }
     }
 
-    /**
-     * Tambah poin pelanggan secara manual
-     */
     public function tambahPoin(Request $request, string $id)
     {
         $request->validate([
@@ -150,14 +141,57 @@ final class PelangganController extends Controller
         }
     }
 
-    /**
-     * Tampilkan halaman form tukar poin GLOBAL
-     */
     public function tukarPoinFormGlobal()
     {
         $pelanggans = $this->pelangganService->getAllPelanggansWithPoin();
-        $rewards = $this->pelangganService->getAllRewards(); // semua reward tersedia
+        $rewards = $this->pelangganService->getAllRewards();
 
         return view('pages.pelanggan.tukar-poin-global', compact('pelanggans', 'rewards'));
     }
+
+    /**
+ * ============================
+ * EXPORT CSV FUNCTION
+ * ============================
+ */
+public function exportCSV()
+{
+    $pelanggans = $this->pelangganService->getAllPelanggansWithPoin();
+
+    $filename = "data_pelanggan_" . date('Ymd_His') . ".csv";
+
+    $columns = [
+        'ID Pelanggan',
+        'Nama Pelanggan',
+        'Nomor Telepon',
+        'Poin Loyalitas'
+    ];
+
+    $callback = function() use ($pelanggans, $columns) {
+        $file = fopen('php://output', 'w');
+
+        // Tambahkan BOM UTF-8 agar Excel membuka CSV dengan encoding benar
+        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        // Tulis header kolom
+        fputcsv($file, $columns);
+
+        // Tulis data pelanggan
+        foreach ($pelanggans as $p) {
+            fputcsv($file, [
+                $p->ID_Pelanggan,
+                $p->Nama_Pelanggan,
+                $p->NoTelp_Pelanggan,
+                $p->poinLoyalitas->Jumlah_Poin ?? 0
+            ]);
+        }
+
+        fclose($file);
+    };
+
+    return response()->streamDownload($callback, $filename, [
+        "Content-Type" => "text/csv",
+        "Content-Disposition" => "attachment; filename={$filename}"
+    ]);
+}
 }

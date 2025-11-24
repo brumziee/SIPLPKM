@@ -62,37 +62,42 @@ Route::middleware('auth')->group(function () {
         Route::get('/count', [NotificationController::class, 'getCount'])->name('count');
     });
 
-    // ===== Sistem Loyalitas =====
-    // Pelanggan routes
-    Route::middleware('permission:pelanggan.view')->prefix('pelanggan')->group(function () {
-        Route::get('/', [PelangganController::class, 'index'])->name('pelanggan.index');
-        Route::get('/create', [PelangganController::class, 'create'])
-            ->middleware('permission:pelanggan.create')
-            ->name('pelanggan.create');
-        Route::post('/', [PelangganController::class, 'store'])
-            ->middleware('permission:pelanggan.store')
-            ->name('pelanggan.store');
-        Route::get('/{id}', [PelangganController::class, 'show'])->name('pelanggan.show');
-        Route::get('/{id}/edit', [PelangganController::class, 'edit'])
-            ->middleware('permission:pelanggan.edit')
-            ->name('pelanggan.edit');
-        Route::put('/{id}', [PelangganController::class, 'update'])
-            ->middleware('permission:pelanggan.update')
-            ->name('pelanggan.update');
-        Route::delete('/{id}', [PelangganController::class, 'destroy'])
-            ->middleware('permission:pelanggan.delete')
-            ->name('pelanggan.destroy');
+   // ===== Sistem Loyalitas =====
+// Pelanggan routes
+Route::middleware('permission:pelanggan.view')->prefix('pelanggan')->group(function () {
+    Route::get('/', [PelangganController::class, 'index'])->name('pelanggan.index');
+    Route::get('/create', [PelangganController::class, 'create'])
+        ->middleware('permission:pelanggan.create')
+        ->name('pelanggan.create');
+    Route::post('/', [PelangganController::class, 'store'])
+        ->middleware('permission:pelanggan.store')
+        ->name('pelanggan.store');
+    Route::get('/{id}', [PelangganController::class, 'show'])->name('pelanggan.show');
+    Route::get('/{id}/edit', [PelangganController::class, 'edit'])
+        ->middleware('permission:pelanggan.edit')
+        ->name('pelanggan.edit');
+    Route::put('/{id}', [PelangganController::class, 'update'])
+        ->middleware('permission:pelanggan.update')
+        ->name('pelanggan.update');
+    Route::delete('/{id}', [PelangganController::class, 'destroy'])
+        ->middleware('permission:pelanggan.delete')
+        ->name('pelanggan.destroy');
 
-        // Form penukaran poin global
-        Route::get('/tukar-poin', [PelangganController::class, 'tukarPoinFormGlobal'])
-            ->middleware('permission:penukaran.view')
-            ->name('pelanggan.tukar-poin');
+    // Form penukaran poin global
+    Route::get('/tukar-poin', [PelangganController::class, 'tukarPoinFormGlobal'])
+        ->middleware('permission:penukaran.view')
+        ->name('pelanggan.tukar-poin');
 
-        // Tambah poin manual
-        Route::post('/{id}/tambah-poin', [PelangganController::class, 'tambahPoin'])
-            ->middleware('permission:poin.add')
-            ->name('pelanggan.tambah-poin');
-    });
+    // Tambah poin manual
+    Route::post('/{id}/tambah-poin', [PelangganController::class, 'tambahPoin'])
+        ->middleware('permission:poin.add')
+        ->name('pelanggan.tambah-poin');
+
+    //  EXPORT CSV (TAMBAHAN BARU)
+    Route::get('/export/csv', [PelangganController::class, 'exportCSV'])
+        ->middleware('permission:pelanggan.view')
+        ->name('pelanggan.export.csv');
+});
 
     // ===== Reward routes =====
     Route::prefix('reward')->group(function () {

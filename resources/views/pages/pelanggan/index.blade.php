@@ -3,6 +3,12 @@
 @section('title', 'Kelola Pelanggan')
 
 @section('action')
+@can('pelanggan.view')
+<a href="{{ route('pelanggan.export.csv') }}" class="btn btn-danger me-2">
+    <i class="fas fa-download"></i> Export CSV
+</a>
+@endcan
+
 @can('pelanggan.store')
 <a href="{{ route('pelanggan.create') }}" class="btn btn-primary me-2">
     <i class="fas fa-plus"></i> Tambah Data

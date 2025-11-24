@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 final class PelangganService
 {
     /**
-     * Get all pelanggans with poin loyalitas
+     * Ambil semua pelanggan beserta poin loyalitasnya
      */
     public function getAllPelanggansWithPoin(): Collection
     {
@@ -22,7 +22,7 @@ final class PelangganService
     }
 
     /**
-     * Search pelanggan by name
+     * Cari pelanggan
      */
     public function searchPelanggan(string $search): Collection
     {
@@ -33,7 +33,7 @@ final class PelangganService
     }
 
     /**
-     * Get pelanggan by ID
+     * Ambil pelanggan berdasarkan ID
      */
     public function getPelangganById(int $id): Pelanggan
     {
@@ -41,16 +41,15 @@ final class PelangganService
     }
 
     /**
-     * Create new pelanggan + poin loyalitas sekaligus
+     * Create pelanggan + poin loyalitas
      */
     public function createPelanggan(array $data): Pelanggan
     {
         $jumlahPoin = $data['Poin_Loyalitas'] ?? 0;
-        unset($data['Poin_Loyalitas']); // hapus supaya tidak masuk ke tabel pelanggan
+        unset($data['Poin_Loyalitas']);
 
         $pelanggan = Pelanggan::create($data);
 
-        // Buat poin loyalitas
         PoinLoyalitas::create([
             'ID_Pelanggan' => $pelanggan->ID_Pelanggan,
             'Jumlah_Poin'  => $jumlahPoin,
@@ -60,118 +59,115 @@ final class PelangganService
     }
 
     /**
-     * Update pelanggan beserta poin loyalitas jika ada
+     * Update pelanggan + poin loyalitas
      */
-public function updatePelanggan(int $id, array $data): bool
-{
-    $pelanggan = Pelanggan::findOrFail($id);
+    public function updatePelanggan(int $id, array $data): bool
+    {
+        $pelanggan = Pelanggan::findOrFail($id);
 
-    // Pisahkan jumlah poin dari data pelanggan
-    $jumlahPoin = $data['Jumlah_Poin'] ?? null;
-    unset($data['Jumlah_Poin']);
+        $jumlahPoin = $data['Jumlah_Poin'] ?? null;
+        unset($data['Jumlah_Poin']);
 
-    // Update data pelanggan
-    $pelanggan->update($data);
+        // Update data pelanggan
+        $pelanggan->update($data);
 
-    // Update poin loyalitas
-    if (!is_null($jumlahPoin)) {
-        $poinLoyalitas = $pelanggan->poinLoyalitas;
-        if ($poinLoyalitas) {
-            $poinLoyalitas->update(['Jumlah_Poin' => $jumlahPoin]);
-        } else {
-            PoinLoyalitas::create([
-                'ID_Pelanggan' => $id,
-                'Jumlah_Poin' => $jumlahPoin,
-            ]);
+        // Update poin jika dikirim dari form
+        if (!is_null($jumlahPoin)) {
+            $poin = $pelanggan->poinLoyalitas;
+
+            if ($poin) {
+                $poin->update(['Jumlah_Poin' => $jumlahPoin]);
+            } else {
+                PoinLoyalitas::create([
+                    'ID_Pelanggan' => $id,
+                    'Jumlah_Poin'  => $jumlahPoin,
+                ]);
+            }
         }
+
+        return true;
     }
 
-    return true;
-}
-
     /**
-     * Delete pelanggan
+     * Hapus pelanggan
      */
     public function deletePelanggan(int $id): bool
     {
-        $pelanggan = Pelanggan::findOrFail($id);
-        return $pelanggan->delete();
+        return Pelanggan::findOrFail($id)->delete();
     }
 
     /**
-     * Tambah poin manual
+     * Tambah poin
      */
     public function tambahPoin(int $pelangganId, int $jumlahPoin): bool
     {
         $pelanggan = $this->getPelangganById($pelangganId);
-        $poinLoyalitas = $pelanggan->poinLoyalitas;
+        $poin = $pelanggan->poinLoyalitas;
 
-        if (!$poinLoyalitas) {
+        if (!$poin) {
             PoinLoyalitas::create([
                 'ID_Pelanggan' => $pelangganId,
-                'Jumlah_Poin' => $jumlahPoin
+                'Jumlah_Poin'  => $jumlahPoin,
             ]);
             return true;
         }
 
-        return $poinLoyalitas->increment('Jumlah_Poin', $jumlahPoin);
+        return $poin->increment('Jumlah_Poin', $jumlahPoin);
     }
 
     /**
-     * Get available rewards for pelanggan
+     * Ambil semua reward yang bisa ditukar oleh pelanggan tertentu
      */
     public function getAvailableRewards(int $pelangganId): Collection
     {
         $pelanggan = $this->getPelangganById($pelangganId);
         $poinSaatIni = $pelanggan->poinLoyalitas->Jumlah_Poin ?? 0;
 
-        return Reward::with(['pemilik', 'pegawai'])
-            ->where('Poin_Dibutuhkan', '<=', $poinSaatIni)
+        return Reward::where('Poin_Dibutuhkan', '<=', $poinSaatIni)
             ->orderBy('Poin_Dibutuhkan', 'desc')
             ->get();
     }
 
     /**
-     * Tukar poin pelanggan untuk reward
+     * Tukar poin reward
      */
     public function tukarPoin(int $pelangganId, int $rewardId, int $userId): array
     {
         $pelanggan = $this->getPelangganById($pelangganId);
         $reward = Reward::findOrFail($rewardId);
-        $poinLoyalitas = $pelanggan->poinLoyalitas;
+        $poin = $pelanggan->poinLoyalitas;
 
-        if (!$poinLoyalitas || $poinLoyalitas->Jumlah_Poin < $reward->Poin_Dibutuhkan) {
-            throw new \Exception('Poin tidak mencukupi untuk penukaran reward ini');
+        if (!$poin || $poin->Jumlah_Poin < $reward->Poin_Dibutuhkan) {
+            throw new \Exception('Poin tidak mencukupi untuk penukaran reward');
         }
 
-        $poinBaru = $poinLoyalitas->Jumlah_Poin - $reward->Poin_Dibutuhkan;
-        $poinLoyalitas->update(['Jumlah_Poin' => $poinBaru]);
+        $poinBaru = $poin->Jumlah_Poin - $reward->Poin_Dibutuhkan;
+        $poin->update(['Jumlah_Poin' => $poinBaru]);
 
         $penukaran = PenukaranPoin::create([
             'ID_Pemilik' => $reward->ID_Pemilik,
             'ID_Pegawai' => $reward->ID_Pegawai,
             'ID_Pelanggan' => $pelangganId,
-            'ID_Poin' => $poinLoyalitas->ID_Poin,
+            'ID_Poin' => $poin->ID_Poin,
             'ID_Reward' => $rewardId,
             'Jumlah_Poin_Ditukar' => $reward->Poin_Dibutuhkan,
             'Tanggal_Penukaran' => now(),
         ]);
 
         return [
-            'success' => true,
-            'sisa_poin' => $poinBaru,
-            'reward' => $reward->Nama_Reward,
-            'transaction_id' => $penukaran->transaction_id ?? null,
+            'success'      => true,
+            'sisa_poin'    => $poinBaru,
+            'reward'       => $reward->Nama_Reward,
             'penukaran_id' => $penukaran->ID_Penukaran,
         ];
     }
 
     /**
-     * Riwayat penukaran
+     * Riwayat penukaran poin
      */
     public function getRiwayatPenukaran(int $pelangganId): Collection
     {
-        return PenukaranPoin::with(['reward', 'pemilik', 'pegawai'])
+        return PenukaranPoin::with(['reward'])
             ->where('ID_Pelanggan', $pelangganId)
             ->orderBy('Tanggal_Penukaran', 'desc')
             ->get();
@@ -182,9 +178,16 @@ public function updatePelanggan(int $id, array $data): bool
      */
     public function getRiwayatTransaksi(int $pelangganId): Collection
     {
-        return Transaksi::with('pegawai')
-            ->where('ID_Pelanggan', $pelangganId)
+        return Transaksi::where('ID_Pelanggan', $pelangganId)
             ->orderBy('Tanggal_Transaksi', 'desc')
             ->get();
+    }
+
+    /**
+     * Ambil semua reward (FIX missing method)
+     */
+    public function getAllRewards()
+    {
+        return Reward::orderBy('Poin_Dibutuhkan')->get();
     }
 }
