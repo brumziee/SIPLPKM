@@ -46,7 +46,11 @@
                         <td>{{ \Carbon\Carbon::parse($penukaran['Tanggal_Penukaran'])->format('d M Y, H:i') }}</td>
                         <td>
                             @can('penukaran-poin.delete')
-                                <form action="{{ route('penukaran-poin.destroy', $penukaran['ID_Penukaran']) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus penukaran ini?')">
+                                {{-- PERUBAHAN 1: Menambahkan atribut data-name untuk dibaca JavaScript --}}
+                                <form action="{{ route('penukaran-poin.destroy', $penukaran['ID_Penukaran']) }}" 
+                                      method="POST" 
+                                      class="d-inline form-delete"
+                                      data-name="{{ $penukaran['Nama_Pelanggan'] ?? 'Pelanggan' }} - {{ $penukaran['Nama_Reward'] ?? 'Reward' }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
@@ -95,8 +99,11 @@
 @endsection
 
 @push('addon-script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
+    // 1. Inisialisasi DataTables
     @if(count($penukarans) > 0)
     $('#penukaran-poin-table').DataTable({
         "responsive": true,
@@ -118,6 +125,31 @@ $(document).ready(function() {
         }
     });
     @endif
+
+    // 2. SweetAlert Logic (Dinamis mengambil nama)
+    $(document).on('submit', '.form-delete', function(e) {
+        e.preventDefault();
+        
+        var form = this;
+        // PERUBAHAN 2: Mengambil data nama dari atribut HTML
+        var namaData = $(this).data('name'); 
+        
+        Swal.fire({
+            title: 'Hapus Penukaran?',
+            // PERUBAHAN 3: Menampilkan nama data secara spesifik (menggunakan html agar bisa bold)
+            html: "Apakah Anda yakin ingin menghapus data penukaran dari:<br><b>" + namaData + "</b>?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 @endpush

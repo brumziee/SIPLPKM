@@ -74,7 +74,11 @@
                                         </a>
                                     @endcan
                                     @can('reward.delete')
-                                        <form action="{{ route('reward.destroy', $reward->ID_Reward) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus reward ini?')">
+                                        {{-- PERUBAHAN 1: Menambahkan data-name berisi Nama Reward --}}
+                                        <form action="{{ route('reward.destroy', $reward->ID_Reward) }}" 
+                                              method="POST" 
+                                              class="d-inline form-delete"
+                                              data-name="{{ $reward->Nama_Reward }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
@@ -125,10 +129,13 @@
 @endsection
 
 @push('addon-script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
+    // 1. Inisialisasi DataTables
     @if($rewards->count() > 0)
-    $('#reward-table').DataTable({
+    var table = $('#reward-table').DataTable({
         "responsive": true,
         "autoWidth": false,
         "language": {
@@ -148,6 +155,31 @@ $(document).ready(function() {
         }
     });
     @endif
+
+    // 2. SweetAlert Logic (Dinamis mengambil nama)
+    $(document).on('submit', '.form-delete', function(e) {
+        e.preventDefault(); // Matikan submit otomatis browser
+        
+        var form = this; 
+        // PERUBAHAN 2: Mengambil nama reward dari atribut HTML
+        var namaReward = $(this).data('name');
+        
+        Swal.fire({
+            title: 'Hapus Reward?',
+            // PERUBAHAN 3: Menampilkan nama reward secara spesifik
+            html: "Apakah Anda yakin ingin menghapus reward <b>" + namaReward + "</b>?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 @endpush

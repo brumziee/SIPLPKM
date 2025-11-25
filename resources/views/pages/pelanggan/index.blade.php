@@ -66,7 +66,11 @@
                                     </a>
                                     @endcan
                                     @can('pelanggan.delete')
-                                    <form action="{{ route('pelanggan.destroy', $pelanggan->ID_Pelanggan) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pelanggan ini?')">
+                                    {{-- PERUBAHAN 1: Tambah class form-delete & data-name --}}
+                                    <form action="{{ route('pelanggan.destroy', $pelanggan->ID_Pelanggan) }}" 
+                                          method="POST" 
+                                          class="d-inline form-delete"
+                                          data-name="{{ $pelanggan->Nama_Pelanggan }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
@@ -110,13 +114,17 @@
 @endsection
 
 @push('addon-script')
+{{-- PERUBAHAN 2: Load SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
     @if($pelanggans->count() > 0)
     var table = $('#pelanggan-table').DataTable({
         "responsive": true,
         "autoWidth": false,
-        "searching": false,
+        // "searching": false,  <-- HAPUS INI (jika false, API search tidak jalan)
+        "dom": "rtip",       // <-- GANTI DENGAN INI (Menyembunyikan kotak search bawaan, tapi fungsi search tetap aktif)
         "lengthChange": false,
         "language": {
             "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
@@ -133,10 +141,34 @@ $(document).ready(function() {
         }
     });
 
+    // Custom Search Logic
     $('#search-input').on('keyup', function() {
         table.search(this.value).draw();
     });
     @endif
+
+    // PERUBAHAN 3: SweetAlert Logic (Dynamic Name & Event Delegation)
+    $(document).on('submit', '.form-delete', function(e) {
+        e.preventDefault(); // Mencegah submit default
+        
+        var form = this;
+        var namaPelanggan = $(this).data('name'); // Ambil nama dari atribut HTML
+        
+        Swal.fire({
+            title: 'Hapus Pelanggan?',
+            html: "Apakah Anda yakin ingin menghapus data pelanggan <b>" + namaPelanggan + "</b>?<br><small class='text-danger'>Poin dan riwayat penukaran juga akan terhapus!</small>",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 @endpush
