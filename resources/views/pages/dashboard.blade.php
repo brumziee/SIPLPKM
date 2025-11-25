@@ -5,10 +5,10 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    <!-- Notification Sukses / Error (Persis seperti layout default berhasil) -->
+    <!-- Notification Sukses / Error -->
     @if(session('message'))
         <div class="text-center mb-3">
-            <div class="alert alert-dismissible fade show" role="alert" style="background-color: {{ session('message_type') == 'success' ? '#28a745' : '#dc3545' }}; color: #fff;">
+            <div class="alert alert-dismissible fade show" role="alert" style="background-color: {{ session('message_type') == 'success' ? '#28a745' : (session('message_type') == 'warning' ? '#ffc107' : '#dc3545') }}; color: #fff;">
                 {{ session('message') }}
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Top Pelanggan & Top Reward -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
@@ -72,7 +72,27 @@
         </div>
     </div>
 
-    <!-- Tombol Import CSV di tengah bawah -->
+    <!-- Chart 7 Hari Terakhir -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Total Poin Pelanggan (7 Hari Terakhir)</h5>
+                    <canvas id="chartPoin"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Total Penukaran Reward (7 Hari Terakhir)</h5>
+                    <canvas id="chartPenukaran"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tombol Import CSV -->
     <div class="text-center mt-4">
         <button type="button" class="btn btn-danger px-4 py-2" data-bs-toggle="modal" data-bs-target="#importModal">
             <i class="bi bi-upload"></i> Import CSV
@@ -105,4 +125,69 @@
         </div>
     </div>
 </div>
+
+<!-- Chart JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const poinData = @json($poin7Hari);
+    const penukaranData = @json($penukaran7Hari);
+
+    const labels = [...Array(7).keys()].map(i => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return d.toISOString().slice(0,10);
+    });
+
+    const poinTotals = labels.map(l => {
+        const match = poinData.find(d => d.date === l);
+        return match ? parseInt(match.total_poin) : 0;
+    });
+
+    const penukaranTotals = labels.map(l => {
+        const match = penukaranData.find(d => d.date === l);
+        return match ? parseInt(match.total_terpakai) : 0;
+    });
+
+    // Chart Poin
+    new Chart(document.getElementById('chartPoin'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Poin',
+                data: poinTotals,
+                fill: true,
+                backgroundColor: 'rgba(13, 110, 253, 0.2)', // biru transparan
+                borderColor: '#0d6efd',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Chart Penukaran dengan arsir hijau
+    new Chart(document.getElementById('chartPenukaran'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Penukaran',
+                data: penukaranTotals,
+                fill: true,
+                backgroundColor: 'rgba(25, 135, 84, 0.2)', // hijau transparan
+                borderColor: '#198754',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
 @endsection

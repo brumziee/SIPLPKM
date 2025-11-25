@@ -13,9 +13,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Total Pelanggan & Reward
         $totalCustomers = DB::table('pelanggan')->count();
         $totalRewards = DB::table('reward')->count();
 
+        // Top 3 Pelanggan dengan Poin Tertinggi
         $topPelanggan = DB::table('pelanggan')
             ->select(
                 'pelanggan.ID_Pelanggan',
@@ -28,6 +30,7 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        // Top Reward Paling Banyak Ditukar
         $topRewards = DB::table('reward')
             ->select(
                 'reward.ID_Reward',
@@ -40,11 +43,34 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        // Chart 7 Hari Terakhir
+        $poin7Hari = DB::table('poin_loyalitas')
+            ->select(
+                DB::raw('DATE("created_at") as date'),
+                DB::raw('SUM("poin_loyalitas"."Jumlah_Poin")::int as total_poin')
+            )
+            ->whereBetween('created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $penukaran7Hari = DB::table('penukaran_poin')
+            ->select(
+                DB::raw('DATE("created_at") as date'),
+                DB::raw('COUNT("ID_Reward")::int as total_terpakai')
+            )
+            ->whereBetween('created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
         return view('pages.dashboard', compact(
             'totalCustomers',
             'totalRewards',
             'topPelanggan',
-            'topRewards'
+            'topRewards',
+            'poin7Hari',
+            'penukaran7Hari'
         ));
     }
 
@@ -155,7 +181,6 @@ class DashboardController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            // simpan log gagal
             CsvLog::create([
                 'filename'       => $filename,
                 'imported_rows'  => isset($rows) ? count($rows) : 0,
