@@ -8,69 +8,79 @@ use App\Models\Pelanggan;
 use App\Models\Transaksi;
 use App\Models\PoinLoyalitas;
 use App\Models\CsvLog;
+use Carbon\Carbon; // [BARU] Perlu import ini untuk mengolah tanggal
 
 class DashboardController extends Controller
 {
-    public function index()
+public function index()
     {
-        // Total Pelanggan & Reward
+        // 1. STATISTIK UTAMA (4 KPI)
         $totalCustomers = DB::table('pelanggan')->count();
         $totalRewards = DB::table('reward')->count();
+        $totalTransactions = DB::table('transaksi')->count();
+        $totalPointsCirculation = DB::table('poin_loyalitas')->sum('Jumlah_Poin');
 
-        // Top 3 Pelanggan dengan Poin Tertinggi
+        // 2. REPORT TABEL 1: Top Pelanggan
         $topPelanggan = DB::table('pelanggan')
-            ->select(
-                'pelanggan.ID_Pelanggan',
-                'pelanggan.Nama_Pelanggan',
-                DB::raw('SUM("poin_loyalitas"."Jumlah_Poin") as total_poin')
-            )
+            ->select('pelanggan.Nama_Pelanggan', DB::raw('SUM("poin_loyalitas"."Jumlah_Poin") as total_poin'))
             ->join('poin_loyalitas', 'pelanggan.ID_Pelanggan', '=', 'poin_loyalitas.ID_Pelanggan')
             ->groupBy('pelanggan.ID_Pelanggan', 'pelanggan.Nama_Pelanggan')
             ->orderByDesc('total_poin')
-            ->limit(3)
+            ->limit(5)
             ->get();
 
-        // Top Reward Paling Banyak Ditukar
+        // 3. REPORT TABEL 2: Top Rewards
         $topRewards = DB::table('reward')
-            ->select(
-                'reward.ID_Reward',
-                'reward.Nama_Reward',
-                DB::raw('COUNT("penukaran_poin"."ID_Reward") as total_terpakai')
-            )
+            ->select('reward.Nama_Reward', DB::raw('COUNT("penukaran_poin"."ID_Reward") as total_terpakai'))
             ->join('penukaran_poin', 'reward.ID_Reward', '=', 'penukaran_poin.ID_Reward')
             ->groupBy('reward.ID_Reward', 'reward.Nama_Reward')
             ->orderByDesc('total_terpakai')
-            ->limit(3)
+            ->limit(5)
             ->get();
 
-        // Chart 7 Hari Terakhir
-        $poin7Hari = DB::table('poin_loyalitas')
+        // [BAGIAN INI YANG PERLU DIUBAH]
+        // 4. REPORT TABEL 3: Recent Activity (Ganti ke Penukaran Poin)
+        $recentActivities = DB::table('penukaran_poin')
+            ->join('pelanggan', 'penukaran_poin.ID_Pelanggan', '=', 'pelanggan.ID_Pelanggan')
+            ->join('reward', 'penukaran_poin.ID_Reward', '=', 'reward.ID_Reward')
             ->select(
-                DB::raw('DATE("created_at") as date'),
-                DB::raw('SUM("poin_loyalitas"."Jumlah_Poin")::int as total_poin')
+                'pelanggan.Nama_Pelanggan',
+                'reward.Nama_Reward',         // Agar $act->Nama_Reward di View tidak error
+                'penukaran_poin.created_at'
             )
-            ->whereBetween('created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
+            ->orderByDesc('penukaran_poin.created_at')
+            ->limit(5)
             ->get();
 
-        $penukaran7Hari = DB::table('penukaran_poin')
-            ->select(
-                DB::raw('DATE("created_at") as date'),
-                DB::raw('COUNT("ID_Reward")::int as total_terpakai')
-            )
-            ->whereBetween('created_at', [now()->subDays(6)->startOfDay(), now()->endOfDay()])
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
+        // 5. DATA GRAFIK (7 Hari Terakhir)
+        $chartDates = [];
+        $chartPoin = [];
+        $chartRedeem = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $dateObj = now()->subDays($i);
+            $dateStr = $dateObj->format('Y-m-d');
+            
+            $chartDates[] = $dateObj->format('d M'); 
+
+            // Poin masuk berdasarkan Tanggal Transaksi (dari nama file CSV)
+            $poinHariIni = DB::table('transaksi')
+                ->whereDate('Tanggal_Transaksi', $dateStr) 
+                ->sum('Jumlah_Transaksi');
+            
+            // Penukaran berdasarkan waktu input
+            $redeemHariIni = DB::table('penukaran_poin')
+                ->whereDate('created_at', $dateStr)
+                ->count();
+
+            $chartPoin[] = (int) $poinHariIni;
+            $chartRedeem[] = (int) $redeemHariIni;
+        }
 
         return view('pages.dashboard', compact(
-            'totalCustomers',
-            'totalRewards',
-            'topPelanggan',
-            'topRewards',
-            'poin7Hari',
-            'penukaran7Hari'
+            'totalCustomers', 'totalRewards', 'totalTransactions', 'totalPointsCirculation',
+            'topPelanggan', 'topRewards', 'recentActivities',
+            'chartDates', 'chartPoin', 'chartRedeem'
         ));
     }
 
@@ -86,6 +96,18 @@ class DashboardController extends Controller
         DB::beginTransaction();
 
         $filename = $request->file('file') ? $request->file('file')->getClientOriginalName() : 'Tidak ada file';
+        
+        // [LOGIKA BARU] Deteksi tanggal dari nama file
+        // Format yang dicari: ..._ddmmyy_... (contoh: _301125_)
+        $tanggalTransaksi = now(); // Default hari ini jika gagal deteksi
+        if (preg_match('/_(\d{6})_/', $filename, $matches)) {
+            try {
+                $tanggalTransaksi = Carbon::createFromFormat('dmy', $matches[1]);
+            } catch (\Exception $e) {
+                // Jika format salah, tetap gunakan now()
+            }
+        }
+
         $rows = [];
         $errors = [];
 
@@ -100,6 +122,11 @@ class DashboardController extends Controller
             $expectedHeader = ['No','Nama Pelanggan','Nomor Telepon','Transaksi','Total'];
             $header = $rows[0] ?? [];
 
+            // Fix jika header terbaca satu baris panjang
+            if ($header !== $expectedHeader && count($header) === 1 && strpos($header[0], ',') !== false) {
+                 $header = str_getcsv($header[0]);
+            }
+
             if ($header !== $expectedHeader) {
                 throw new \Exception('Format CSV tidak sesuai. Pastikan header: ' . implode(', ', $expectedHeader));
             }
@@ -108,6 +135,14 @@ class DashboardController extends Controller
 
             foreach ($rows as $index => $row) {
                 $line = $index + 2;
+
+                // Fix baris menyatu karena tanda kutip
+                if (count($row) === 1 && isset($row[0]) && strpos($row[0], ',') !== false) {
+                    $parsedAgain = str_getcsv($row[0]);
+                    if (count($parsedAgain) >= 4) {
+                        $row = $parsedAgain; 
+                    }
+                }
 
                 if (count($row) < 4) {
                     $errors[] = "Baris $line: Data tidak lengkap.";
@@ -141,7 +176,7 @@ class DashboardController extends Controller
                     'ID_Pegawai'        => 1,
                     'ID_Pelanggan'      => $pelanggan->ID_Pelanggan,
                     'Jumlah_Transaksi'  => $trxCount,
-                    'Tanggal_Transaksi' => now(),
+                    'Tanggal_Transaksi' => $tanggalTransaksi, // [UBAH DISINI] Pakai tanggal dari file
                 ]);
 
                 $poin = PoinLoyalitas::where('ID_Pelanggan', $pelanggan->ID_Pelanggan)->first();
@@ -166,7 +201,7 @@ class DashboardController extends Controller
 
             DB::commit();
 
-            $message = 'CSV berhasil diimport.';
+            $message = 'CSV berhasil diimport. Tanggal Data: ' . $tanggalTransaksi->format('d M Y');
             $messageType = 'success';
             if ($errors) {
                 $message .= ' Namun beberapa baris memiliki masalah.';
