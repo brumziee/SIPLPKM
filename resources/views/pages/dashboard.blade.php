@@ -7,7 +7,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="fw-bold text-dark mb-0">Dashboard</h3>
+            {{-- <h3 class="fw-bold text-dark mb-0">Dashboard</h3> --}}
             <p class="text-muted mb-0">Ringkasan aktivitas program loyalitas.</p>
         </div>
         <button type="button" class="btn btn-danger shadow-sm" data-bs-toggle="modal" data-bs-target="#importModal">
@@ -235,7 +235,8 @@
         plugins: { legend: { display: false } },
         scales: { 
             y: { beginAtZero: true, ticks: { precision: 0 } },
-            x: { grid: { display: false } }
+            x: { grid: { display: false },
+            offset: true }
         }
     };
 
