@@ -7,7 +7,7 @@
 
 <style>
     :root {
-        --tblr-primary: #00a63e;
+        --tblr-primary: #d63939;
         --tblr-font-sans-serif: "Inter";
     }
 

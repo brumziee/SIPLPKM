@@ -5,6 +5,18 @@
             <div class="text-center mb-4">
                 <p class="navbar-brand fs-1">SIPLPKM</p>
             </div>
+
+            {{-- TAMPILKAN ERROR JIKA LOGIN GAGAL --}}
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('login') }}" class="card card-md">
                 @csrf
                 <div class="card-body">
@@ -38,7 +50,8 @@
                     </div>
 
                     <div class="form-footer">
-                        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">Login</button>
+                        <button type="submit"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">Login</button>
                     </div>
                 </div>
             </form>

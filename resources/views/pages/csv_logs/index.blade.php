@@ -66,6 +66,8 @@ $(document).ready(function() {
         "responsive": true,
         "autoWidth": false,
         "language": {
+            "search": "Cari:",
+            "lengthMenu": "Tampilkan _MENU_ data",
             "info": "Menampilkan _START_ - _END_ dari _TOTAL_ data",
             "infoEmpty": "Tidak ada data",
             "infoFiltered": "(disaring dari _MAX_ total data)",

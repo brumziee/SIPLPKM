@@ -4,22 +4,26 @@
         <!-- BAR ATAS: toggle kiri, SIPLPKM tengah, profil kanan mobile -->
         <div class="d-flex align-items-center w-100 mb-3 position-relative">
             <!-- tombol toggle di kiri (hanya mobile) -->
-            <button class="navbar-toggler collapsed d-lg-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-                aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler collapsed d-lg-none me-2" type="button" data-bs-toggle="collapse"
+                data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false"
+                aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <!-- SIPLPKM di tengah -->
-            <a href="{{ route('dashboard') }}" 
-               class="fw-bold text-2xl text-red-600 hover:text-red-800 text-decoration-none text-center w-100">
+            <a href="{{ route('dashboard') }}"
+                class="fw-bold text-red-600 hover:text-red-800 text-decoration-none text-center w-100"
+                style="font-size: 20px;">
                 SIPLPKM
             </a>
 
             <!-- PROFIL di kanan (mobile) -->
             <div class="d-lg-none position-absolute end-0">
                 <div class="nav-item dropdown">
-                    <a href="#" class="p-0 nav-link d-flex align-items-center" data-bs-toggle="dropdown" aria-label="Open user menu">
-                        <span class="avatar avatar-sm" style="background-image: url('{{ asset('static/avatars/userprofile.png') }}')"></span>
+                    <a href="#" class="p-0 nav-link d-flex align-items-center" data-bs-toggle="dropdown"
+                        aria-label="Open user menu">
+                        <span class="avatar avatar-sm"
+                            style="background-image: url('{{ asset('static/avatars/userprofile.png') }}')"></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                         <div class="dropdown-item-text fw-semibold text-center">
@@ -29,7 +33,7 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="#" class="dropdown-item text-danger fw-semibold"
-                               onclick="event.preventDefault(); this.closest('form').submit();">
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 Logout
                             </a>
                         </form>
@@ -74,7 +78,8 @@
                 </li>
 
                 <!-- Penukaran Poin -->
-                <li class="nav-item {{ request()->is('penukaran-poin*') || request()->is('penukaran*') ? 'active' : '' }}">
+                <li
+                    class="nav-item {{ request()->is('penukaran-poin*') || request()->is('penukaran*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('penukaran-poin.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -86,7 +91,7 @@
                                 <path d="M8.5 4.5l.5 7h6l.5 -7"></path>
                             </svg>
                         </span>
-                        <span class="nav-link-title"> Penukaran Poin </span>
+                        <span class="nav-link-title"> Riwayat Penukaran </span>
                     </a>
                 </li>
 
@@ -108,9 +113,9 @@
                 <li class="nav-item {{ request()->is('csv-logs*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('csv-logs.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                                 <path d="M12 20l4 -9l-4 -3l-4 3z"></path>
                                 <path d="M12 4l0 .01"></path>
                                 <path d="M3 12l.01 0"></path>
@@ -125,8 +130,9 @@
                     </a>
                 </li>
 
+                {{-- Dipakai jika mau menambahkan fitur user pada pada tampilan admin --}}
                 <!-- User -->
-                @can('user.view')
+                {{-- @can('user.view')
                 <li class="nav-item {{ request()->is('user*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('user.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -140,10 +146,11 @@
                         <span class="nav-link-title"> User </span>
                     </a>
                 </li>
-                @endcan
+                @endcan --}}
 
+                {{-- Dipakai jika mau menambahkan fitur hak akses pada tampilan admin --}}
                 <!-- Hak Akses -->
-                @can('role.view')
+                {{-- @can('role.view')
                 <li class="nav-item {{ request()->is('role*') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('role.index') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -156,9 +163,9 @@
                         <span class="nav-link-title"> Hak Akses </span>
                     </a>
                 </li>
-                @endcan
+                @endcan --}}
 
-                
+
             </ul>
         </div>
     </div>
